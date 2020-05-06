@@ -13,3 +13,27 @@
   max-width: 300px;
   margin: auto;
 }
+
+/* Start */
+body{
+  background-color: whitesmoke;
+}
+
+.main_story_container{
+  height: calc(((100vh - 2rem) * 0.85) - 30px);
+  margin-bottom: 30px;
+}
+
+.input_container{
+  position: absolute;
+  bottom: 1.25rem;
+  width: calc(100% - 2.5rem);
+}
+
+.submain_story_container{
+  height: calc((100vh - 2rem) * 0.15);
+}
+
+.chat_container{
+  height: calc(100vh - 2rem);
+}

@@ -7,12 +7,14 @@ import AddTutorial from "./components/add-tutorial.component";
 import Tutorial from "./components/tutorial.component";
 import TutorialsList from "./components/tutorials-list.component";
 
+import v1_test from "./view/v1/test";
+
 class App extends Component {
   render() {
     return (
       <Router>
         <div>
-          <nav className="navbar navbar-expand navbar-dark bg-dark">
+          {/* <nav className="navbar navbar-expand navbar-dark bg-dark">
             <a href="/tutorials" className="navbar-brand">
               Home
             </a>
@@ -28,11 +30,13 @@ class App extends Component {
                 </Link>
               </li>
             </div>
-          </nav>
+          </nav> */}
 
-          <div className="container mt-3">
+          <div className="container-fluid mt-3">
             <Switch>
-              <Route exact path={["/", "/tutorials"]} component={TutorialsList} />
+              {/* <Route exact path={["/", "/tutorials"]} component={TutorialsList} /> */}
+              <Route exact path="/" component={v1_test} />
+              <Route exact path="/tutorials" component={TutorialsList} />
               <Route exact path="/add" component={AddTutorial} />
               <Route path="/tutorials/:id" component={Tutorial} />
             </Switch>
