@@ -32,8 +32,57 @@ body{
 
 .submain_story_container{
   height: calc((100vh - 2rem) * 0.15);
+  cursor: pointer;
+}
+
+.submain_story_container .card-body{
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.submain_card{
+  height: 100%;
+  width: 17.5%;
+  background-color: aqua;
+  margin: 0 .25rem;
+  display: inline-block;
+}
+
+.submain_card:hover{
+  background-color: black;
+}
+
+.submain_card div{
+  overflow: hidden;
+  width: 100%;
+  display:table;
+  height: 100%;
+}
+
+.submain_card span{
+  overflow: hidden;
+  text-align: center;
+  vertical-align: middle;
+  width: 100%;
+  display:table-cell;
+  font-size: 11px;
+  white-space: pre-wrap;
 }
 
 .chat_container{
   height: calc(100vh - 2rem);
+}
+
+textarea.no-resize{
+  resize: none;
+}
+
+#text_preview{
+  text-align: center;
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: pre-wrap;
 }
