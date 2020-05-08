@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { Button, Card, CardBody, Col, Form, FormGroup, Input, InputGroup, InputGroupAddon, Row } from 'reactstrap';
 import StoryDataService from "../../services/story.service";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes, faCheck, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import ModalUser from "./user";
 
 class Chatbox_view extends Component{
   constructor(props) {
@@ -43,7 +46,7 @@ class Chatbox_view extends Component{
           <FormGroup>
           <InputGroup size="sm">
             <Input type="text" onChange={this.onChangeTextChat} value={this.state.TextChat} onKeyDown={this.keyPress}/>
-            <InputGroupAddon addonType="append"><Button onClick={this.onClickSubmitChat}>Submit</Button></InputGroupAddon>
+            <InputGroupAddon addonType="append"><Button color="success" onClick={this.onClickSubmitChat}><FontAwesomeIcon icon={faPaperPlane} /></Button></InputGroupAddon>
           </InputGroup>
           </FormGroup>
         </Form>
@@ -79,10 +82,10 @@ class Main_view extends Component {
     };
     StoryDataService.create(data)
       .then(response => {
+        this.retrieveStories();
         this.setState({
           TextPreview: "",
         });
-        this.retrieveStories();
       })
       .catch(e => {
         console.log(e);
@@ -112,7 +115,8 @@ class Main_view extends Component {
           <Card className="main_story_container">
             <CardBody>
               <div className="preview_container">
-                <Button id="btn_close_preview" onClick={() => this.setState({ showing: false })} style={{ display: (showing ? 'inline-block' : 'none') }} className="font-weight-bold" color="danger">X</Button>
+                <Button id="btn_close_preview" onClick={() => this.setState({ showing: false })} style={{ display: (showing ? 'inline-block' : 'none') }} className="font-weight-bold" color="danger"><FontAwesomeIcon icon={faTimes} /></Button>
+                <ModalUser/>
                 <h1 id="text_preview">{(showing ? this.state.TextStoryView : this.state.TextPreview)}</h1>
               </div>
               <div className="input_container">
@@ -120,7 +124,7 @@ class Main_view extends Component {
                   <FormGroup>
                     <Input type="textarea" name="text" className="no-resize" value={this.state.TextPreview} onChange={this.onChangeTextPreview} />
                   </FormGroup>
-                  <Button size="sm" onClick={this.onClickSubmitStory}>Submit</Button>
+                  <Button color="success" size="sm" onClick={this.onClickSubmitStory}><FontAwesomeIcon icon={faCheck} /> Submit</Button>
                 </Form>
               </div>
             </CardBody>
