@@ -74,6 +74,31 @@ body{
   height: calc(100vh - 2rem);
 }
 
+#chat_container{
+  height: 100%;
+}
+
+#chat_container > ul{
+  list-style-type: none; 
+  margin: 0; 
+  padding: 0;
+}
+
+#chat_container > ul li {
+  padding: 5px 10px;
+  font-size: .7rem;
+}
+
+#chat_container > ul li:nth-child(odd) {
+  background: #eee;
+}
+
+#chat_container > form{
+  width: calc(100% - 2.5rem);
+  position: absolute;
+  bottom: 0;
+}
+
 textarea.no-resize{
   resize: none;
 }
@@ -85,4 +110,9 @@ textarea.no-resize{
   left: 50%;
   transform: translate(-50%, -50%);
   white-space: pre-wrap;
+}
+#btn_close_preview{
+  position: absolute;
+  right: 1.25rem;
+  /* display: none; */
 }

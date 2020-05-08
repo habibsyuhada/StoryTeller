@@ -21,9 +21,9 @@ io.on('connection', socket => {
     console.log('user disconnected')
   })
 
-  socket.on('chat message', (text_chat) => {
+  socket.on('chat message', ({name, text_chat}) => {
     console.log('test: ', text_chat)
-    io.sockets.emit('chat message', text_chat)
+    io.sockets.emit('chat message', {name: name, text_chat: text_chat})
   })
 
 })

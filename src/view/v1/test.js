@@ -1,47 +1,53 @@
 import React, { Component } from "react";
-import { Button, Card, CardBody, Col, Form, FormGroup, Input, Row } from 'reactstrap';
+import { Button, Card, CardBody, Col, Form, FormGroup, Input, InputGroup, InputGroupAddon, Row } from 'reactstrap';
 import StoryDataService from "../../services/story.service";
-import socketIOClient from "socket.io-client";
-import socketlink from '../../services/socket.service';
 
-
-class Substory_view extends Component{
+class Chatbox_view extends Component{
   constructor(props) {
     super(props);
-    this.retrieveStories = this.retrieveStories.bind(this);
+    this.onClickSubmitChat = this.onClickSubmitChat.bind(this);
+    this.onChangeTextChat = this.onChangeTextChat.bind(this);
+    this.keyPress = this.keyPress.bind(this);
 
+    this.chats_data = [];
     this.state = {
-      stories: [],
-    };
+      TextChat: "",
+      chats_data: this.chats_data,
+    }; 
+    
   }
-
   componentDidMount() {
-    this.retrieveStories();
+    global.socketlink.on('chat message', ({name, text_chat}) => {
+    this.chats_data.push(<li><b>{name}</b>: {text_chat}</li>);
+      this.setState({chats_data: this.chats_data})
+    })
   }
-
-  retrieveStories() {
-    StoryDataService.getAll()
-      .then(response => {
-        this.setState({
-          stories: response.data
-        });
-        console.log(response.data);
-        
-      })
-      .catch(e => {
-        console.log(e);
-      });
+  onChangeTextChat(event) {
+    this.setState({TextChat: event.target.value})
   }
-
+  onClickSubmitChat() {
+    this.setState({TextChat: ""})
+    global.socketlink.emit('chat message', { name: "Habib", text_chat: this.state.TextChat })
+  }
+  keyPress(e){
+    if(e.keyCode == 13){
+      e.preventDefault();
+      this.onClickSubmitChat();
+    }
+  }
   render() {
-    const { stories } = this.state;
     return (
-      <CardBody className="py-1">
-        {stories &&
-          stories.map((story, index) => (
-            <div className="submain_card"><div><span>{story.story_text}</span></div></div>
-          ))}
-      </CardBody>
+      <div id="chat_container">
+        <ul>{this.chats_data}</ul>
+        <Form>
+          <FormGroup>
+          <InputGroup size="sm">
+            <Input type="text" onChange={this.onChangeTextChat} value={this.state.TextChat} onKeyDown={this.keyPress}/>
+            <InputGroupAddon addonType="append"><Button onClick={this.onClickSubmitChat}>Submit</Button></InputGroupAddon>
+          </InputGroup>
+          </FormGroup>
+        </Form>
+      </div>
     )
   }
 }
@@ -51,21 +57,20 @@ class Main_view extends Component {
     super(props);
     this.onChangeTextPreview = this.onChangeTextPreview.bind(this);
     this.onClickSubmitStory = this.onClickSubmitStory.bind(this);
+    this.retrieveStories = this.retrieveStories.bind(this);
+    this.onClickShowStory = this.onClickShowStory.bind(this);
     this.state = {
       TextPreview: "",
+      TextStoryView: "",
+      stories: [],
+      showing: false,
     }; 
-
-    this.SubStoryElement = React.createRef();
   }
   componentDidMount() {
-    global.socketlink.on('chat message', (text_chat) => {
-      console.log(text_chat);
-    })
+    this.retrieveStories();
   }
   onChangeTextPreview(event) {
     this.setState({TextPreview: event.target.value})
-    console.log(event.target.value);
-    global.socketlink.emit('chat message', event.target.value)
   }
   onClickSubmitStory() {
     var data = {
@@ -77,22 +82,38 @@ class Main_view extends Component {
         this.setState({
           TextPreview: "",
         });
-        console.log(response.data);
-        this.SubStoryElement.current.retrieveStories();
+        this.retrieveStories();
       })
       .catch(e => {
         console.log(e);
       });
-    console.log("Submited!");
+  }
+  retrieveStories() {
+    StoryDataService.getAll()
+      .then(response => {
+        this.setState({
+          stories: response.data
+        });
+        
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+  onClickShowStory(event) {
+    this.setState({TextStoryView: event.target.textContent})
+    this.setState({ showing: true })
   }
   render() {
+    const { stories, showing } = this.state;
     return (
       <Row>
         <Col md="9">
           <Card className="main_story_container">
             <CardBody>
               <div className="preview_container">
-                <h1 id="text_preview">{this.state.TextPreview}</h1>
+                <Button id="btn_close_preview" onClick={() => this.setState({ showing: false })} style={{ display: (showing ? 'inline-block' : 'none') }} className="font-weight-bold" color="danger">X</Button>
+                <h1 id="text_preview">{(showing ? this.state.TextStoryView : this.state.TextPreview)}</h1>
               </div>
               <div className="input_container">
                 <Form>
@@ -105,12 +126,18 @@ class Main_view extends Component {
             </CardBody>
           </Card>
           <Card className="submain_story_container">
-            <Substory_view ref={this.SubStoryElement} />
+            <CardBody className="py-1">
+              {stories &&
+                stories.map((story, index) => (
+                  <div className="submain_card"><div><span onClick={this.onClickShowStory}>{story.story_text}</span></div></div>
+                ))}
+            </CardBody>
           </Card>
         </Col>
         <Col md="3">
           <Card className="chat_container">
             <CardBody>
+              <Chatbox_view/>
             </CardBody>
           </Card>          
         </Col>
