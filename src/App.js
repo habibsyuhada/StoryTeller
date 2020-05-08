@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import socketIOClient from "socket.io-client";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 
@@ -10,6 +11,12 @@ import TutorialsList from "./components/tutorials-list.component";
 import v1_test from "./view/v1/test";
 
 class App extends Component {
+  constructor() {
+    super();
+    //Setting up global variable
+    global.socketlink = socketIOClient('localhost:4001');
+
+  }
   render() {
     return (
       <Router>
