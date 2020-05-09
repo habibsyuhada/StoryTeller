@@ -1,3 +1,10 @@
+var list_player = [];
+var list_player_wait = [];
+var list_player_done = [];
+var turn_player = "";
+var play = 0;
+var playing = 0;
+
 const express = require('express')
 const http = require('http')
 const socketIO = require('socket.io')
@@ -16,14 +23,65 @@ const io = socketIO(server)
 // This is what the socket.io syntax is like, we will work this later
 io.on('connection', socket => {
   console.log('User connected')
+  list_player.push(socket.id);
+  list_player_wait.push(socket.id);
+  if(list_player.length > 1){
+    play = 1;
+    if(playing == 0){
+      var num_player = Math.floor(Math.random() * list_player_wait.length)
+      if(num_player > -1){
+        turn_player = list_player_wait[num_player];
+        io.sockets.emit('find name turn player', {player: turn_player})
+      }
+    }
+  }
+
+  // var clients = io.sockets.clients();
+  // var clientdata = clients.connected
+  // console.log(Object.keys(clientdata));
+  // Object.keys(clientdata).map(function(objectKey, index) {
+  //   var value = clientdata[objectKey];
+  //   console.log(value.id);
+  // });
   
   socket.on('disconnect', () => {
     console.log('user disconnected')
+    list_player.splice(list_player.indexOf(socket.id), 1);
+    list_player_wait.splice(list_player_wait.indexOf(socket.id), 1);
+    if(list_player.length < 2){
+      play = 0;
+    }
   })
 
   socket.on('chat message', ({name, text_chat}) => {
-    console.log('test: ', text_chat)
+    // console.log('test: ', text_chat)
     io.sockets.emit('chat message', {name: name, text_chat: text_chat})
+  })
+
+  socket.on('send name turn player', ({id, name}) => {
+    io.sockets.emit('set turn player', {player: id, playername: name})
+  })
+
+  socket.on('typing story', ({id, name, text_story}) => {
+    io.sockets.emit('typing story', {id: id, name: name, text_story: text_story})
+  })
+
+  socket.on('refresh story', data => {
+    io.sockets.emit('refresh story', data)
+    list_player_wait.splice(list_player_wait.indexOf(data), 1);
+    if(play == 1){
+      if(list_player_wait.length < 1){
+        list_player_wait = list_player;
+      }
+      var num_player = Math.floor(Math.random() * list_player_wait.length)
+      if(num_player > -1){
+        turn_player = list_player_wait[num_player];
+        io.sockets.emit('find name turn player', {player: turn_player})
+      }
+    }
+    else{
+      playing = 0;
+    }
   })
 
 })

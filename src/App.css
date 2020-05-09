@@ -44,9 +44,10 @@ body{
 .submain_card{
   height: 100%;
   width: 17.5%;
-  background-color: aqua;
+  background-color: white;
   margin: 0 .25rem;
   display: inline-block;
+  border: 1px solid #000;
 }
 
 .submain_card:hover{
@@ -78,18 +79,18 @@ body{
   height: 100%;
 }
 
-#chat_container > ul{
+#chat_container ul{
   list-style-type: none; 
   margin: 0; 
   padding: 0;
 }
 
-#chat_container > ul li {
+#chat_container ul li {
   padding: 5px 10px;
   font-size: .7rem;
 }
 
-#chat_container > ul li:nth-child(odd) {
+#chat_container ul li:nth-child(odd) {
   background: #eee;
 }
 
@@ -97,6 +98,11 @@ body{
   width: calc(100% - 2.5rem);
   position: absolute;
   bottom: 0;
+}
+
+#list_chat{
+  height: calc(100% - (1.5em + .5rem + 2px));
+  overflow-y: auto;
 }
 
 textarea.no-resize{

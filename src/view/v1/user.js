@@ -6,15 +6,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 const ModalExample = (props) => {
-  var UserName = "";
 
   const {
     className,
   } = props;
 
   const [modal, setModal] = useState(false);
+  const [UserName, setUserName] = useState("");
 
-  const toggle = () => setModal(!modal);
+  const toggle = () => {
+    setModal(!modal)
+    if(modal == false && localStorage.getItem('UserName') !== null){
+      setUserName(localStorage.getItem('UserName'));
+    }
+  };
   const setname = () => {
     if(UserName == ""){
       localStorage.removeItem('UserName');
@@ -22,20 +27,21 @@ const ModalExample = (props) => {
     else{
       localStorage.setItem('UserName', UserName);
     }
+    toggle();
   };
   const onChangeUserName = (event) => {
-    UserName = event.target.value;
+    setUserName(event.target.value);
   };
 
   return (
     <div>
-      <Button className="font-weight-bold" color="primary" onClick={toggle}><FontAwesomeIcon icon={faUser} /></Button>
+      <Button className="font-weight-bold" color="primary" onClick={toggle}><FontAwesomeIcon icon={faUser} /> Profile</Button>
       <Modal isOpen={modal} toggle={toggle} className={className}>
         <ModalHeader toggle={toggle}>User</ModalHeader>
         <ModalBody>
           <FormGroup>
             <Label>Your Name</Label>
-            <Input type="text" onChange={onChangeUserName} placeholder="What is Your Name?" />
+            <Input type="text" onChange={onChangeUserName} value={UserName} placeholder="What is Your Name?" />
           </FormGroup>
         </ModalBody>
         <ModalFooter>

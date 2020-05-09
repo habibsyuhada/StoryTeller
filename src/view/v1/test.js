@@ -21,7 +21,7 @@ class Chatbox_view extends Component{
   }
   componentDidMount() {
     global.socketlink.on('chat message', ({name, text_chat}) => {
-    this.chats_data.push(<li><b>{name}</b>: {text_chat}</li>);
+      this.chats_data.push(<li><b>{name}</b>: {text_chat}</li>);
       this.setState({chats_data: this.chats_data})
     })
   }
@@ -30,7 +30,14 @@ class Chatbox_view extends Component{
   }
   onClickSubmitChat() {
     this.setState({TextChat: ""})
-    global.socketlink.emit('chat message', { name: "Habib", text_chat: this.state.TextChat })
+    if(localStorage.getItem('UserName') === null){
+      alert("You Should Have a Name to Chat");
+    }
+    else{
+      if(this.state.TextChat != ""){
+        global.socketlink.emit('chat message', { name: localStorage.getItem('UserName'), text_chat: this.state.TextChat })
+      }
+    }
   }
   keyPress(e){
     if(e.keyCode == 13){
@@ -41,7 +48,9 @@ class Chatbox_view extends Component{
   render() {
     return (
       <div id="chat_container">
-        <ul>{this.chats_data}</ul>
+        <div id="list_chat">
+          <ul>{this.chats_data}</ul>
+        </div>
         <Form>
           <FormGroup>
           <InputGroup size="sm">
@@ -67,25 +76,49 @@ class Main_view extends Component {
       TextStoryView: "",
       stories: [],
       showing: false,
+      turn_player: "",
+      turn_player_name: "",
     }; 
   }
   componentDidMount() {
     this.retrieveStories();
+    global.socketlink.on('typing story', ({id, name, text_story}) => {
+      this.setState({TextPreview: text_story})
+    })
+    global.socketlink.on('find name turn player', ({player}) => {
+      if(global.socketlink.id == player){
+        global.socketlink.emit('send name turn player', { id: global.socketlink.id, name: localStorage.getItem('UserName') })
+      }
+    })
+    global.socketlink.on('set turn player', ({player, playername}) => {
+      this.setState({turn_player: player})
+      this.setState({turn_player_name: playername})
+    })
+    global.socketlink.on('refresh story', data => {
+      this.retrieveStories();
+      this.setState({ TextPreview: "" });
+    })
   }
   onChangeTextPreview(event) {
+    if(this.state.turn_player != global.socketlink.id){
+      alert("Not Your Turn")
+      return false
+    }
     this.setState({TextPreview: event.target.value})
+    global.socketlink.emit('typing story', { id: global.socketlink.id, name: localStorage.getItem('UserName'), text_story: event.target.value })
   }
   onClickSubmitStory() {
+    if(this.state.turn_player != global.socketlink.id){
+      alert("Not Your Turn")
+      return false
+    }
     var data = {
       story_by: "Habib",
       story_text: this.state.TextPreview
     };
     StoryDataService.create(data)
       .then(response => {
-        this.retrieveStories();
-        this.setState({
-          TextPreview: "",
-        });
+        global.socketlink.emit('refresh story', global.socketlink.id)
       })
       .catch(e => {
         console.log(e);
@@ -125,6 +158,7 @@ class Main_view extends Component {
                     <Input type="textarea" name="text" className="no-resize" value={this.state.TextPreview} onChange={this.onChangeTextPreview} />
                   </FormGroup>
                   <Button color="success" size="sm" onClick={this.onClickSubmitStory}><FontAwesomeIcon icon={faCheck} /> Submit</Button>
+                  <span> {this.state.turn_player_name} turn</span>
                 </Form>
               </div>
             </CardBody>
