@@ -14,7 +14,7 @@ class App extends Component {
   constructor() {
     super();
     //Setting up global variable
-    global.socketlink = socketIOClient('https://sky-serverst.herokuapp.com/');
+    global.socketlink = socketIOClient('https://sky-serverst.herokuapp.com/:4001');
 
   }
   render() {
