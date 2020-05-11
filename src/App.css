@@ -90,8 +90,9 @@ body{
   font-size: .7rem;
 }
 
-#chat_container ul li:nth-child(odd) {
+#chat_container ul li.notif {
   background: #eee;
+  text-align: center;
 }
 
 #chat_container > form{

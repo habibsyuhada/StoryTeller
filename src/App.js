@@ -9,6 +9,7 @@ import Tutorial from "./components/tutorial.component";
 import TutorialsList from "./components/tutorials-list.component";
 
 import v1_test from "./view/v1/test";
+import v1_setup from "./view/v1/setup";
 
 class App extends Component {
   constructor() {
@@ -42,7 +43,8 @@ class App extends Component {
           <div className="container-fluid mt-3">
             <Switch>
               {/* <Route exact path={["/", "/tutorials"]} component={TutorialsList} /> */}
-              <Route exact path="/" component={v1_test} />
+              <Route exact path="/" component={v1_setup} />
+              <Route exact path="/play" component={v1_test} />
               <Route exact path="/tutorials" component={TutorialsList} />
               <Route exact path="/add" component={AddTutorial} />
               <Route path="/tutorials/:id" component={Tutorial} />

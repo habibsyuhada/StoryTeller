@@ -25,7 +25,10 @@ const ModalExample = (props) => {
       localStorage.removeItem('UserName');
     }
     else{
+      var last_name = localStorage.getItem('UserName')
       localStorage.setItem('UserName', UserName);
+      global.socketlink.emit('notif chat', { notif_text: (last_name ? last_name : "New Player") + " Change Name to " + localStorage.getItem('UserName') + ".", id: global.socketlink.id })
+      global.socketlink.emit('set name player', { name: UserName })
     }
     toggle();
   };

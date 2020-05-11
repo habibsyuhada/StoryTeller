@@ -24,6 +24,14 @@ class Chatbox_view extends Component{
       this.chats_data.push(<li><b>{name}</b>: {text_chat}</li>);
       this.setState({chats_data: this.chats_data})
     })
+    global.socketlink.on('notif chat', ({notif_text, id}) => {
+      if(global.socketlink.id != id){
+        this.chats_data.push(<li className="notif"><b>{notif_text}</b></li>);
+      }
+    })
+    if(localStorage.getItem('UserName') !== null){
+      global.socketlink.emit('set name player', { name: localStorage.getItem('UserName') })
+    }
   }
   onChangeTextChat(event) {
     this.setState({TextChat: event.target.value})
@@ -98,6 +106,9 @@ class Main_view extends Component {
       this.retrieveStories();
       this.setState({ TextPreview: "" });
     })
+    global.socketlink.on('connect', () => {
+      global.socketlink.emit('notif chat', { notif_text: (localStorage.getItem('UserName') ? localStorage.getItem('UserName') : "New Player") + " Join The Game.", id: global.socketlink.id })
+    })
   }
   onChangeTextPreview(event) {
     if(this.state.turn_player != global.socketlink.id){
@@ -158,7 +169,7 @@ class Main_view extends Component {
                     <Input type="textarea" name="text" className="no-resize" value={this.state.TextPreview} onChange={this.onChangeTextPreview} />
                   </FormGroup>
                   <Button color="success" size="sm" onClick={this.onClickSubmitStory}><FontAwesomeIcon icon={faCheck} /> Submit</Button>
-                  <span> {this.state.turn_player_name} turn</span>
+                  <span> {(this.state.turn_player_name ? this.state.turn_player_name + "Turn" : "Waiting Other Player")}</span>
                 </Form>
               </div>
             </CardBody>

@@ -1,6 +1,6 @@
 var list_player = [];
 var list_player_wait = [];
-var list_player_done = [];
+var list_player_name = [];
 var turn_player = "";
 var play = 0;
 var playing = 0;
@@ -25,16 +25,7 @@ io.on('connection', socket => {
   console.log('User connected')
   list_player.push(socket.id);
   list_player_wait.push(socket.id);
-  if(list_player.length > 1){
-    play = 1;
-    if(playing == 0){
-      var num_player = Math.floor(Math.random() * list_player_wait.length)
-      if(num_player > -1){
-        turn_player = list_player_wait[num_player];
-        io.sockets.emit('find name turn player', {player: turn_player})
-      }
-    }
-  }
+  io.sockets.emit('num player', {num: list_player.length})
 
   // var clients = io.sockets.clients();
   // var clientdata = clients.connected
@@ -46,20 +37,39 @@ io.on('connection', socket => {
   
   socket.on('disconnect', () => {
     console.log('user disconnected')
+    io.sockets.emit('notif chat', {notif_text: (list_player_name[socket.id] ? list_player_name[socket.id] : "New Player") + " Left The Game", id: "System"})
     list_player.splice(list_player.indexOf(socket.id), 1);
     list_player_wait.splice(list_player_wait.indexOf(socket.id), 1);
+    list_player_name.splice(list_player_wait.indexOf(socket.id), 1);
     if(list_player.length < 2){
       play = 0;
+    }
+    io.sockets.emit('num player', {num: list_player.length})
+  })
+
+  socket.on('set name player', ({name}) => {
+    list_player_name[socket.id] = name;
+  })
+
+  socket.on('start game', ({name}) => {
+    if(list_player.length > 1){
+      play = 1;
+      if(playing == 0){
+        var num_player = Math.floor(Math.random() * list_player_wait.length)
+        if(num_player > -1){
+          turn_player = list_player_wait[num_player];
+          io.sockets.emit('set turn player', {player: turn_player, playername: list_player_name[turn_player]})
+        }
+      }
     }
   })
 
   socket.on('chat message', ({name, text_chat}) => {
-    // console.log('test: ', text_chat)
     io.sockets.emit('chat message', {name: name, text_chat: text_chat})
   })
 
-  socket.on('send name turn player', ({id, name}) => {
-    io.sockets.emit('set turn player', {player: id, playername: name})
+  socket.on('notif chat', ({notif_text, id}) => {
+    io.sockets.emit('notif chat', {notif_text: notif_text, id: id})
   })
 
   socket.on('typing story', ({id, name, text_story}) => {
