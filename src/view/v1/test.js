@@ -101,6 +101,8 @@ class Main_view extends Component {
     global.socketlink.on('set turn player', ({player, playername}) => {
       this.setState({turn_player: player})
       this.setState({turn_player_name: playername})
+      console.log(player)
+      console.log(playername)
     })
     global.socketlink.on('refresh story', data => {
       this.retrieveStories();

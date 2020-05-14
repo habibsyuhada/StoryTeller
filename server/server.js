@@ -40,7 +40,7 @@ io.on('connection', socket => {
     io.sockets.emit('notif chat', {notif_text: (list_player_name[socket.id] ? list_player_name[socket.id] : "New Player") + " Left The Game", id: "System"})
     list_player.splice(list_player.indexOf(socket.id), 1);
     list_player_wait.splice(list_player_wait.indexOf(socket.id), 1);
-    list_player_name.splice(list_player_wait.indexOf(socket.id), 1);
+    delete list_player_name[socket.id];
     if(list_player.length < 2){
       play = 0;
     }
@@ -49,6 +49,20 @@ io.on('connection', socket => {
 
   socket.on('set name player', ({name}) => {
     list_player_name[socket.id] = name;
+    if(name == 'System'){
+      delete list_player_name[socket.id];
+      if(list_player.includes(socket.id) == true){
+        list_player_wait.splice(list_player_wait.indexOf(socket.id), 1);
+        list_player.splice(list_player.indexOf(socket.id), 1);
+      }
+    }
+    else{
+      if(list_player.includes(socket.id) == false){
+        list_player.push(socket.id);
+        list_player_wait.push(socket.id);
+      }
+    }
+    io.sockets.emit('num player', {num: list_player.length})
   })
 
   socket.on('start game', ({name}) => {
