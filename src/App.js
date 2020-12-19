@@ -43,7 +43,7 @@ class App extends Component {
           <div className="container-fluid mt-3">
             <Switch>
               {/* <Route exact path={["/", "/tutorials"]} component={TutorialsList} /> */}
-              <Route exact path="/" component={v1_setup} />
+              <Route exact path="/" component={v1_test} />
               <Route exact path="/play" component={v1_test} />
               <Route exact path="/tutorials" component={TutorialsList} />
               <Route exact path="/add" component={AddTutorial} />

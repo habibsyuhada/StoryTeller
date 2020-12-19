@@ -79,6 +79,7 @@ class Main_view extends Component {
     this.onClickSubmitStory = this.onClickSubmitStory.bind(this);
     this.retrieveStories = this.retrieveStories.bind(this);
     this.onClickShowStory = this.onClickShowStory.bind(this);
+    this.onCountdowntimer = this.onCountdowntimer.bind(this);
     this.state = {
       TextPreview: "",
       TextStoryView: "",
@@ -86,6 +87,7 @@ class Main_view extends Component {
       showing: false,
       turn_player: "",
       turn_player_name: "",
+      timer: -1,
     }; 
   }
   componentDidMount() {
@@ -93,23 +95,27 @@ class Main_view extends Component {
     global.socketlink.on('typing story', ({id, name, text_story}) => {
       this.setState({TextPreview: text_story})
     })
-    global.socketlink.on('find name turn player', ({player}) => {
-      if(global.socketlink.id == player){
-        global.socketlink.emit('send name turn player', { id: global.socketlink.id, name: localStorage.getItem('UserName') })
-      }
-    })
-    global.socketlink.on('set turn player', ({player, playername}) => {
-      this.setState({turn_player: player})
-      this.setState({turn_player_name: playername})
-      console.log(player)
-      console.log(playername)
-    })
     global.socketlink.on('refresh story', data => {
       this.retrieveStories();
       this.setState({ TextPreview: "" });
     })
     global.socketlink.on('connect', () => {
       global.socketlink.emit('notif chat', { notif_text: (localStorage.getItem('UserName') ? localStorage.getItem('UserName') : "New Player") + " Join The Game.", id: global.socketlink.id })
+    })
+    global.socketlink.on('your_turn', () => {
+      console.log("Your Turn");
+      global.socketlink.emit('send name turn player', { id: global.socketlink.id, name: localStorage.getItem('UserName') })
+    })
+    global.socketlink.on('get name turn player', ({id, name}) => {
+      this.setState({ turn_player: id, turn_player_name: name });
+      this.setState({ TextPreview: "" });
+      this.setState({ timer: 30 });
+      clearInterval(this.timerID);
+      this.timerID = setInterval(
+        () => this.onCountdowntimer(),
+        1000
+      );
+      
     })
   }
   onChangeTextPreview(event) {
@@ -126,12 +132,13 @@ class Main_view extends Component {
       return false
     }
     var data = {
-      story_by: "Habib",
+      story_by: localStorage.getItem('UserName'),
       story_text: this.state.TextPreview
     };
     StoryDataService.create(data)
       .then(response => {
         global.socketlink.emit('refresh story', global.socketlink.id)
+        global.socketlink.emit('pass_turn')
       })
       .catch(e => {
         console.log(e);
@@ -153,6 +160,13 @@ class Main_view extends Component {
     this.setState({TextStoryView: event.target.textContent})
     this.setState({ showing: true })
   }
+  onCountdowntimer(event) {
+    var time_now = this.state.timer;
+    this.setState({timer: time_now - 1});
+    if(time_now < 0){
+      clearInterval(this.timerID);
+    }
+  }
   render() {
     const { stories, showing } = this.state;
     return (
@@ -171,7 +185,7 @@ class Main_view extends Component {
                     <Input type="textarea" name="text" className="no-resize" value={this.state.TextPreview} onChange={this.onChangeTextPreview} />
                   </FormGroup>
                   <Button color="success" size="sm" onClick={this.onClickSubmitStory}><FontAwesomeIcon icon={faCheck} /> Submit</Button>
-                  <span> {(this.state.turn_player_name ? this.state.turn_player_name + "Turn" : "Waiting Other Player")}</span>
+                  <span> {(this.state.turn_player_name ? this.state.turn_player_name + " Turn" : "Waiting Other Player")} {(this.state.timer > -1 ? "(" + this.state.timer + "s)" : "")}</span>
                 </Form>
               </div>
             </CardBody>
